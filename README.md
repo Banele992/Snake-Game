@@ -1,7 +1,3 @@
-Here’s a comprehensive and professional `README.md` for your **Snake Game in Java (Swing)**, inspired by your Agri-Energy Connect example:
-
----
-
 # 🐍🎮 Java Snake Game
 
 **Java Snake Game** is a classic arcade-style snake game implemented using **Java Swing**. This project showcases core concepts of 2D game development, event handling, collision detection, and state management using object-oriented programming in Java.
