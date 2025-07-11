@@ -54,50 +54,55 @@ public class SnakeApp extends JPanel implements ActionListener, KeyListener {
         gameLoop.start();
     }
 
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        draw(g);
-    }
+ @Override
+public void paintComponent(Graphics g) {
+    super.paintComponent(g);
+
+    int w = getWidth();
+    int h = getHeight();
+
+    // Draw red border within actual dimensions
+    g.setColor(Color.RED);
+    g.drawRect(0, 0, w - 1, h - 1);  // outer border
+    g.drawRect(1, 1, w - 3, h - 3);  // inner border
+
+    draw(g);
+}
+
 
     public void draw(Graphics g) {
-        // Grid lines
-        // for (int i = 0; i < boardWidth / tileSize; i++) {
-        //     // x1, y1, x2, y2
-        //     g.drawLine(i * tileSize, 0, i * tileSize, boardHeight);
-        //     g.drawLine(0, i * tileSize, boardWidth, i * tileSize);
-        // }
-
-
         // Points
         g.setColor(Color.red);
-        // g.fillRect(food.x * tileSize, food.y * tileSize, tileSize, tileSize);
         g.fill3DRect(food.x * tileSize, food.y * tileSize, tileSize, tileSize, true);
 
         // Snake Head
         g.setColor(Color.green);
-        // g.fillRect(snakeHead.x * tileSize, snakeHead.y * tileSize, tileSize, tileSize);
         g.fill3DRect(snakeHead.x * tileSize, snakeHead.y * tileSize, tileSize, tileSize, true);
 
         // Snake Body
         for (int i = 0; i < snakeBody.size(); i++) {
             Tile snakePart = snakeBody.get(i);
-            // g.fillRect(snakePart.x * tileSize, snakePart.y * tileSize, tileSize, tileSize);
             g.fill3DRect(snakePart.x * tileSize, snakePart.y * tileSize, tileSize, tileSize, true);
         }
 
-        //Score
-        g.setFont(new Font("Arial", Font.PLAIN, 16));
-        if(gameOver){
-            g.setColor(Color.red);
-            g.drawString("Game Over: " + String.valueOf(snakeBody.size()), tileSize - 16, tileSize);
-        } else {
-            g.drawString("Score: " + String.valueOf(snakeBody.size()), tileSize - 16, tileSize);
+        // Score
+        g.setFont(new Font("Arial", Font.BOLD, 20));
+        g.setColor(Color.WHITE);
+        g.drawString("Score: " + String.valueOf(snakeBody.size()), tileSize * 2, tileSize);
+
+        // Game Over message
+        if (gameOver) {
+            g.setFont(new Font("Arial", Font.BOLD, 24));
+            g.setColor(Color.RED);
+            String gameOverText = "Game Over! Score: " + snakeBody.size();
+            int textWidth = g.getFontMetrics().stringWidth(gameOverText);
+            g.drawString(gameOverText, boardWidth/2 - textWidth/2, boardHeight/2);
         }
     }
 
     public void placeFood() {
-        food.x = random.nextInt(boardWidth / tileSize);
-        food.y = random.nextInt(boardHeight / tileSize);
+        food.x = random.nextInt((boardWidth / tileSize)-1);
+        food.y = random.nextInt((boardHeight / tileSize) -1);
     }
 
     public boolean collision(Tile tile1, Tile tile2) {
@@ -137,10 +142,11 @@ public class SnakeApp extends JPanel implements ActionListener, KeyListener {
                 gameOver = true;
             }
         }
-        if (snakeHead.x*tileSize < 0 || snakeHead.x*tileSize > boardWidth || 
-            snakeHead.y*tileSize < 0 || snakeHead.y*tileSize > boardHeight) {
-                gameOver = true;
-            }
+        if (snakeHead.x * tileSize < 0 || snakeHead.x * tileSize >= getWidth() ||
+    snakeHead.y * tileSize < 0 || snakeHead.y * tileSize >= getHeight()) {
+    gameOver = true;
+}
+
     }
 
     @Override
@@ -150,6 +156,15 @@ public class SnakeApp extends JPanel implements ActionListener, KeyListener {
 
         if (gameOver) {
             gameLoop.stop();
+            // Create and show game over menu
+            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            if (frame != null) {
+                frame.remove(this);
+                GameOverMenu gameOverMenu = new GameOverMenu(frame, boardWidth, boardHeight, snakeBody.size());
+                frame.add(gameOverMenu, BorderLayout.CENTER);
+                frame.revalidate();
+                frame.repaint();
+            }
         }
     }
 
